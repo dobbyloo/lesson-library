@@ -43,9 +43,30 @@ describe('GET /api/v1/lessons/:code', () => {
     const stripsId = lesson.materials[0].id;
 
     expect(lesson.blocks).toEqual([
-      { id: expect.any(Number), block_sequence: 1, minutes: 10, name: 'Warm-up', description: null, material_ids: [] },
-      { id: expect.any(Number), block_sequence: 2, minutes: 20, name: 'Mini-lesson', description: 'Model with fraction strips.', material_ids: [stripsId] },
-      { id: expect.any(Number), block_sequence: 3, minutes: 15, name: 'Independent practice', description: null, material_ids: [] },
+      {
+        id: expect.any(Number),
+        block_sequence: 1,
+        minutes: 10,
+        name: 'Warm-up',
+        description: null,
+        material_ids: [],
+      },
+      {
+        id: expect.any(Number),
+        block_sequence: 2,
+        minutes: 20,
+        name: 'Mini-lesson',
+        description: 'Model with fraction strips.',
+        material_ids: [stripsId],
+      },
+      {
+        id: expect.any(Number),
+        block_sequence: 3,
+        minutes: 15,
+        name: 'Independent practice',
+        description: null,
+        material_ids: [],
+      },
     ]);
   });
 
@@ -67,7 +88,9 @@ describe('GET /api/v1/lessons/:code', () => {
 
   test('returns each assignment once, with a list of its roles in this lesson', async () => {
     const givenOut = (await getLesson('MATH-U1-L1')).json();
-    const practiceBlock = givenOut.blocks.find((block: { name: string }) => block.name === 'Independent practice');
+    const practiceBlock = givenOut.blocks.find(
+      (block: { name: string }) => block.name === 'Independent practice',
+    );
     const assignment = {
       id: expect.any(Number),
       title: 'Comparing fractions practice',
@@ -84,7 +107,9 @@ describe('GET /api/v1/lessons/:code', () => {
 
     // the same assignment shows up on the lesson where it is collected, with that role
     const collected = (await getLesson('MATH-U2-L1')).json();
-    expect(collected.assignments).toEqual([{ ...assignment, roles: [{ role: 'due', block_id: null }] }]);
+    expect(collected.assignments).toEqual([
+      { ...assignment, roles: [{ role: 'due', block_id: null }] },
+    ]);
     expect(collected.assignments[0].id).toBe(givenOut.assignments[0].id);
   });
 
@@ -154,7 +179,11 @@ describe('GET /api/v1/lessons/:code', () => {
     const response = await getLesson('MATH-U9-L9');
 
     expect(response.statusCode).toBe(404);
-    expect(response.json()).toEqual({ statusCode: 404, error: 'Not Found', message: 'No lesson with code "MATH-U9-L9".' });
+    expect(response.json()).toEqual({
+      statusCode: 404,
+      error: 'Not Found',
+      message: 'No lesson with code "MATH-U9-L9".',
+    });
   });
 
   test('a code that could never be valid returns 400', async () => {
@@ -168,8 +197,19 @@ describe('GET /api/v1/lessons/:code', () => {
 
     // airtable_id and the timestamps are columns on lessons but not part of the API
     expect(Object.keys(lesson).sort()).toEqual([
-      'assignments', 'blocks', 'code', 'id', 'key_questions', 'lesson_unit_sequence', 'materials',
-      'objective', 'subject', 'teaching_notes', 'title', 'total_minutes', 'unit',
+      'assignments',
+      'blocks',
+      'code',
+      'id',
+      'key_questions',
+      'lesson_unit_sequence',
+      'materials',
+      'objective',
+      'subject',
+      'teaching_notes',
+      'title',
+      'total_minutes',
+      'unit',
     ]);
   });
 });

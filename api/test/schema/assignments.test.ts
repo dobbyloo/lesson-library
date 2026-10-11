@@ -1,7 +1,12 @@
 import { describe, expect, test } from 'vitest';
 import {
-  CHECK_VIOLATION, FOREIGN_KEY_VIOLATION, UNIQUE_VIOLATION,
-  insertAssignment, insertBlock, insertLesson, insertSubject,
+  CHECK_VIOLATION,
+  FOREIGN_KEY_VIOLATION,
+  UNIQUE_VIOLATION,
+  insertAssignment,
+  insertBlock,
+  insertLesson,
+  insertSubject,
 } from '../helpers/rows.ts';
 import { useTestDatabase } from '../helpers/test-db.ts';
 
@@ -73,7 +78,9 @@ describe('lesson_assignments', () => {
     await link(day3, assignment, 'due');
     await link(day3, other, 'due');
 
-    const { rows } = await db().query("SELECT count(*) AS total FROM lesson_assignments WHERE role = 'working'");
+    const { rows } = await db().query(
+      "SELECT count(*) AS total FROM lesson_assignments WHERE role = 'working'",
+    );
     expect(rows[0].total).toBe(3);
   });
 
@@ -94,8 +101,12 @@ describe('lesson_assignments', () => {
 
     await db().query('DELETE FROM lesson_blocks WHERE id = $1', [block]);
 
-    const { rows } = await db().query('SELECT lesson_id, assignment_id, role, block_id FROM lesson_assignments');
-    expect(rows).toEqual([{ lesson_id: day1, assignment_id: assignment, role: 'assigned', block_id: null }]);
+    const { rows } = await db().query(
+      'SELECT lesson_id, assignment_id, role, block_id FROM lesson_assignments',
+    );
+    expect(rows).toEqual([
+      { lesson_id: day1, assignment_id: assignment, role: 'assigned', block_id: null },
+    ]);
   });
 });
 
@@ -104,7 +115,9 @@ describe('assignments.setting', () => {
     for (const setting of ['exit_ticket', 'in_class', 'homework', 'either']) {
       await insertAssignment(db(), { title: `A ${setting} assignment`, setting });
     }
-    const { rows } = await db().query("SELECT title FROM assignments WHERE setting = 'exit_ticket'");
+    const { rows } = await db().query(
+      "SELECT title FROM assignments WHERE setting = 'exit_ticket'",
+    );
     expect(rows).toEqual([{ title: 'A exit_ticket assignment' }]);
   });
 

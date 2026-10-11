@@ -16,6 +16,7 @@ jobs:
       - run: npm ci
       # the same Postgres the tests use locally
       - run: docker compose up -d --wait
+      - run: npm run format:check
       - run: npm run typecheck
       - run: npm test
       # db/schema.sql must match what the migrations produce

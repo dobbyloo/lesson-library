@@ -8,11 +8,11 @@ services:
       POSTGRES_DB: lesson_library
     ports:
       # bound to localhost only, so the dev database is not reachable from the network
-      - "127.0.0.1:5432:5432"
+      - '127.0.0.1:5432:5432'
     volumes:
       - db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d lesson_library"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d lesson_library']
       interval: 2s
       timeout: 3s
       retries: 15

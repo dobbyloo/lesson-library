@@ -1,14 +1,23 @@
 import { describe, expect, test } from 'vitest';
 import {
   UNIQUE_VIOLATION,
-  inTransaction, insertLesson, insertMaterial, insertSkill, insertStandard, insertSubject, insertUnit,
+  inTransaction,
+  insertLesson,
+  insertMaterial,
+  insertSkill,
+  insertStandard,
+  insertSubject,
+  insertUnit,
 } from '../helpers/rows.ts';
 import { useTestDatabase } from '../helpers/test-db.ts';
 
 const db = useTestDatabase();
 
 function teach(lessonId: number, skillId: number) {
-  return db().query('INSERT INTO lesson_skills (lesson_id, skill_id) VALUES ($1, $2)', [lessonId, skillId]);
+  return db().query('INSERT INTO lesson_skills (lesson_id, skill_id) VALUES ($1, $2)', [
+    lessonId,
+    skillId,
+  ]);
 }
 
 // The lesson codes that teach a skill, first taught first.
@@ -34,10 +43,42 @@ describe('lesson_skill_positions', () => {
     // units and lessons are created, and linked to the skill, in reverse teaching order
     const unit2 = await insertUnit(db(), { subject_id: math, title: 'Unit 2', unit_sequence: 2 });
     const unit1 = await insertUnit(db(), { subject_id: math, title: 'Unit 1', unit_sequence: 1 });
-    await teach(await insertLesson(db(), { code: 'U2-L2', subject_id: math, unit_id: unit2, lesson_unit_sequence: 2 }), skill);
-    await teach(await insertLesson(db(), { code: 'U2-L1', subject_id: math, unit_id: unit2, lesson_unit_sequence: 1 }), skill);
-    await teach(await insertLesson(db(), { code: 'U1-L2', subject_id: math, unit_id: unit1, lesson_unit_sequence: 2 }), skill);
-    await teach(await insertLesson(db(), { code: 'U1-L1', subject_id: math, unit_id: unit1, lesson_unit_sequence: 1 }), skill);
+    await teach(
+      await insertLesson(db(), {
+        code: 'U2-L2',
+        subject_id: math,
+        unit_id: unit2,
+        lesson_unit_sequence: 2,
+      }),
+      skill,
+    );
+    await teach(
+      await insertLesson(db(), {
+        code: 'U2-L1',
+        subject_id: math,
+        unit_id: unit2,
+        lesson_unit_sequence: 1,
+      }),
+      skill,
+    );
+    await teach(
+      await insertLesson(db(), {
+        code: 'U1-L2',
+        subject_id: math,
+        unit_id: unit1,
+        lesson_unit_sequence: 2,
+      }),
+      skill,
+    );
+    await teach(
+      await insertLesson(db(), {
+        code: 'U1-L1',
+        subject_id: math,
+        unit_id: unit1,
+        lesson_unit_sequence: 1,
+      }),
+      skill,
+    );
 
     expect(await lessonOrderFor('Compare fractions')).toEqual(['U1-L1', 'U1-L2', 'U2-L1', 'U2-L2']);
   });
@@ -47,14 +88,61 @@ describe('lesson_skill_positions', () => {
     const skill = await insertSkill(db(), 'Compare fractions');
     const unit1 = await insertUnit(db(), { subject_id: math, title: 'Unit 1', unit_sequence: 1 });
     const unit2 = await insertUnit(db(), { subject_id: math, title: 'Unit 2', unit_sequence: 2 });
-    const module1 = await insertUnit(db(), { subject_id: math, title: 'U1 Module 1', unit_sequence: 1, parent_id: unit1 });
-    const module2 = await insertUnit(db(), { subject_id: math, title: 'U1 Module 2', unit_sequence: 2, parent_id: unit1 });
-    await teach(await insertLesson(db(), { code: 'U2-L1', subject_id: math, unit_id: unit2, lesson_unit_sequence: 1 }), skill);
-    await teach(await insertLesson(db(), { code: 'U1-M2-L1', subject_id: math, unit_id: module2, lesson_unit_sequence: 1 }), skill);
-    await teach(await insertLesson(db(), { code: 'U1-M1-L1', subject_id: math, unit_id: module1, lesson_unit_sequence: 1 }), skill);
-    await teach(await insertLesson(db(), { code: 'U1-INTRO', subject_id: math, unit_id: unit1, lesson_unit_sequence: 9 }), skill);
+    const module1 = await insertUnit(db(), {
+      subject_id: math,
+      title: 'U1 Module 1',
+      unit_sequence: 1,
+      parent_id: unit1,
+    });
+    const module2 = await insertUnit(db(), {
+      subject_id: math,
+      title: 'U1 Module 2',
+      unit_sequence: 2,
+      parent_id: unit1,
+    });
+    await teach(
+      await insertLesson(db(), {
+        code: 'U2-L1',
+        subject_id: math,
+        unit_id: unit2,
+        lesson_unit_sequence: 1,
+      }),
+      skill,
+    );
+    await teach(
+      await insertLesson(db(), {
+        code: 'U1-M2-L1',
+        subject_id: math,
+        unit_id: module2,
+        lesson_unit_sequence: 1,
+      }),
+      skill,
+    );
+    await teach(
+      await insertLesson(db(), {
+        code: 'U1-M1-L1',
+        subject_id: math,
+        unit_id: module1,
+        lesson_unit_sequence: 1,
+      }),
+      skill,
+    );
+    await teach(
+      await insertLesson(db(), {
+        code: 'U1-INTRO',
+        subject_id: math,
+        unit_id: unit1,
+        lesson_unit_sequence: 9,
+      }),
+      skill,
+    );
 
-    expect(await lessonOrderFor('Compare fractions')).toEqual(['U1-INTRO', 'U1-M1-L1', 'U1-M2-L1', 'U2-L1']);
+    expect(await lessonOrderFor('Compare fractions')).toEqual([
+      'U1-INTRO',
+      'U1-M1-L1',
+      'U1-M2-L1',
+      'U2-L1',
+    ]);
   });
 
   test("a skill's lessons are ranked independently of other skills", async () => {
@@ -62,9 +150,24 @@ describe('lesson_skill_positions', () => {
     const compare = await insertSkill(db(), 'Compare fractions');
     const add = await insertSkill(db(), 'Add fractions');
     const unit = await insertUnit(db(), { subject_id: math, title: 'Unit 1', unit_sequence: 1 });
-    const lesson1 = await insertLesson(db(), { code: 'L1', subject_id: math, unit_id: unit, lesson_unit_sequence: 1 });
-    const lesson2 = await insertLesson(db(), { code: 'L2', subject_id: math, unit_id: unit, lesson_unit_sequence: 2 });
-    const lesson3 = await insertLesson(db(), { code: 'L3', subject_id: math, unit_id: unit, lesson_unit_sequence: 3 });
+    const lesson1 = await insertLesson(db(), {
+      code: 'L1',
+      subject_id: math,
+      unit_id: unit,
+      lesson_unit_sequence: 1,
+    });
+    const lesson2 = await insertLesson(db(), {
+      code: 'L2',
+      subject_id: math,
+      unit_id: unit,
+      lesson_unit_sequence: 2,
+    });
+    const lesson3 = await insertLesson(db(), {
+      code: 'L3',
+      subject_id: math,
+      unit_id: unit,
+      lesson_unit_sequence: 3,
+    });
     await teach(lesson1, compare);
     await teach(lesson2, compare);
     await teach(lesson2, add);
@@ -81,7 +184,15 @@ describe('lesson_skill_positions', () => {
     const unit = await insertUnit(db(), { subject_id: math, title: 'Unit 9', unit_sequence: 9 });
     // the standalone lesson is created and linked first
     await teach(await insertLesson(db(), { code: 'STANDALONE', subject_id: math }), skill);
-    await teach(await insertLesson(db(), { code: 'U9-L7', subject_id: math, unit_id: unit, lesson_unit_sequence: 7 }), skill);
+    await teach(
+      await insertLesson(db(), {
+        code: 'U9-L7',
+        subject_id: math,
+        unit_id: unit,
+        lesson_unit_sequence: 7,
+      }),
+      skill,
+    );
 
     expect(await lessonOrderFor('Compare fractions')).toEqual(['U9-L7', 'STANDALONE']);
   });
@@ -90,8 +201,24 @@ describe('lesson_skill_positions', () => {
     const math = await insertSubject(db(), 'Math');
     const skill = await insertSkill(db(), 'Compare fractions');
     const unit = await insertUnit(db(), { subject_id: math, title: 'Unit 1', unit_sequence: 1 });
-    await teach(await insertLesson(db(), { code: 'SWAP-A', subject_id: math, unit_id: unit, lesson_unit_sequence: 1 }), skill);
-    await teach(await insertLesson(db(), { code: 'SWAP-B', subject_id: math, unit_id: unit, lesson_unit_sequence: 2 }), skill);
+    await teach(
+      await insertLesson(db(), {
+        code: 'SWAP-A',
+        subject_id: math,
+        unit_id: unit,
+        lesson_unit_sequence: 1,
+      }),
+      skill,
+    );
+    await teach(
+      await insertLesson(db(), {
+        code: 'SWAP-B',
+        subject_id: math,
+        unit_id: unit,
+        lesson_unit_sequence: 2,
+      }),
+      skill,
+    );
     expect(await lessonOrderFor('Compare fractions')).toEqual(['SWAP-A', 'SWAP-B']);
 
     await inTransaction(db(), async (client) => {
@@ -123,8 +250,14 @@ describe('standards and skills', () => {
     const doomed = await insertSkill(db(), 'Doomed skill');
     const kept = await insertSkill(db(), 'Kept skill');
     for (const skill of [doomed, kept]) {
-      await db().query('INSERT INTO skill_standards (skill_id, standard_id) VALUES ($1, $2)', [skill, standard]);
-      await db().query('INSERT INTO skill_materials (skill_id, material_id) VALUES ($1, $2)', [skill, material]);
+      await db().query('INSERT INTO skill_standards (skill_id, standard_id) VALUES ($1, $2)', [
+        skill,
+        standard,
+      ]);
+      await db().query('INSERT INTO skill_materials (skill_id, material_id) VALUES ($1, $2)', [
+        skill,
+        material,
+      ]);
       await teach(lesson, skill);
     }
 

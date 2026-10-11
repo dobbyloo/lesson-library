@@ -39,6 +39,7 @@ curl http://localhost:3000/api/v1/openapi.json
 | `npm run migrate -- status` | Show applied and pending migrations |
 | `npm run migrate -- new add_something` | Create an empty, timestamped migration file in `db/migrations/` |
 | `npm run schema:dump` | Rewrite `db/schema.sql` from the migrations; run after adding one, and commit the result |
+| `npm run format` | Format every file with Prettier (`npm run format:check` only reports) |
 | `npm run typecheck` | Check the TypeScript without running it |
 | `npm run test:watch -w api` | Rerun tests as files change |
 | `npm run db:down` | Stop Postgres (data is kept) |

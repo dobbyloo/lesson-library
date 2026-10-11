@@ -15,6 +15,11 @@
     "schema:dump": "npm run schema:dump -w api",
     "dev": "npm run dev -w api",
     "test": "npm test -w api",
-    "typecheck": "npm run typecheck -w api"
+    "typecheck": "npm run typecheck -w api",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "^3.9.10"
   }
 }

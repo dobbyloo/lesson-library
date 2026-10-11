@@ -21,6 +21,8 @@ and explain non-obvious choices over clever abstractions.
 - Record decisions in `docs/`, not in chat. Update `docs/schema-decisions.md` when the
   schema changes and add a migration (`npm run migrate -- new <name>`); never edit an
   applied migration. After adding one, run `npm run schema:dump` and commit `db/schema.sql`.
+- Code style is Prettier's (`.prettierrc.json`). Run `npm run format` before committing; CI
+  fails on unformatted files.
 - When finishing a piece of work, say which files changed.
 
 ## Commit messages

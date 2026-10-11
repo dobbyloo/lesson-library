@@ -1,0 +1,5 @@
+# generated
+db/schema.sql
+package-lock.json
+# prose and docs are wrapped by hand
+*.md

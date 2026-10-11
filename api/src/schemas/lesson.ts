@@ -46,9 +46,16 @@ const AssignmentRole = Type.Object({
 const LessonAssignment = Type.Object({
   id: Type.Integer(),
   title: Nullable(Type.String()),
-  kind: Type.Union([Type.Literal('formative'), Type.Literal('assessment'), Type.Literal('project')]),
+  kind: Type.Union([
+    Type.Literal('formative'),
+    Type.Literal('assessment'),
+    Type.Literal('project'),
+  ]),
   setting: Type.Union([
-    Type.Literal('in_class'), Type.Literal('homework'), Type.Literal('either'), Type.Literal('exit_ticket'),
+    Type.Literal('in_class'),
+    Type.Literal('homework'),
+    Type.Literal('either'),
+    Type.Literal('exit_ticket'),
   ]),
   is_group: Type.Boolean(),
   details: Nullable(Type.String()),
