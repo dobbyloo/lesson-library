@@ -6,9 +6,24 @@ import { TEMPLATE_DB, TEST_DB_PREFIX, adminUrl, urlForDatabase } from './urls.ts
 
 // Every table in the schema except dbmate's schema_migrations.
 const TABLES = [
-  'subjects', 'units', 'lessons', 'lesson_blocks', 'material_types', 'materials',
-  'lesson_materials', 'block_materials', 'assignments', 'lesson_assignments', 'skills',
-  'standards', 'skill_standards', 'lesson_skills', 'skill_materials', 'prep_tasks',
+  'subjects',
+  'units',
+  'lessons',
+  'lesson_blocks',
+  'material_types',
+  'materials',
+  'lesson_materials',
+  'block_materials',
+  'assignments',
+  'lesson_assignments',
+  'skills',
+  'standards',
+  'skill_standards',
+  'lesson_skills',
+  'skill_materials',
+  'prep_tasks',
+  'users',
+  'user_sessions',
 ];
 
 async function withAdminClient(run: (client: pg.Client) => Promise<void>) {

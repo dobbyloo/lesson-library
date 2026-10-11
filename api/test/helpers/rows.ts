@@ -66,6 +66,28 @@ export function insertStandard(db: Db, code: string) {
   return insertRow(db, 'standards', { code });
 }
 
+export function insertUser(
+  db: Db,
+  username: string,
+  user: { password_hash?: string; role?: string | null } = {},
+) {
+  return insertRow(db, 'users', {
+    username,
+    password_hash: 'hashedstring',
+    role: 'teacher',
+    ...user,
+  });
+}
+
+// A session that expires tomorrow, unless the test says otherwise.
+export function insertSession(
+  db: Db,
+  session: { user_id: number; token_hash: string; expires_at?: Date },
+) {
+  const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  return insertRow(db, 'user_sessions', { expires_at: tomorrow, ...session });
+}
+
 // Runs the callback on one client inside BEGIN ... COMMIT. Deferred constraints are
 // checked at the COMMIT, so a violation makes this function reject.
 export async function inTransaction(pool: pg.Pool, run: (client: pg.PoolClient) => Promise<void>) {
@@ -86,3 +108,4 @@ export async function inTransaction(pool: pg.Pool, run: (client: pg.PoolClient) 
 export const FOREIGN_KEY_VIOLATION = '23503';
 export const UNIQUE_VIOLATION = '23505';
 export const CHECK_VIOLATION = '23514';
+export const NULL_VIOLATION = '23502';

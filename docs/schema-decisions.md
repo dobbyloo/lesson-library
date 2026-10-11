@@ -1,7 +1,8 @@
 # Schema decisions
 
-The schema is `db/migrations/001_initial_schema.sql`. This document says why it looks the way
-it does, what was deliberately left out, and what the eventual Airtable import must handle.
+The schema is the migrations in `db/migrations/`, starting with `001_initial_schema.sql`;
+`db/schema.sql` is the generated result. This document says why it looks the way it does,
+what was deliberately left out, and what the eventual Airtable import must handle.
 Source: Laura's original draft, reviewed field by field against her Airtable base
 (Lessons: 273 records, Skills: 73 records).
 
@@ -54,6 +55,16 @@ lessons move. It replaces Airtable's First Introduction flag.
 lengths"). Belongs to the lesson that needs the prep, shown only while that lesson is
 scheduled and upcoming. Print-and-copy prep is generated from materials via `add_prep_task`.
 
+**users, user_sessions.** Added in `20261010212240_create_users_and_sessions.sql`, for
+logging in. `users` holds teachers only: `role` has a check that allows just `teacher`, and
+no default, so every insert has to say which role it grants. Students never have a row here
+(the hard rule); a future student app keeps its own accounts and calls the API with a token.
+`username` is 3 to 30 characters: a lowercase letter, then lowercase letters, digits, dot,
+underscore, or hyphen. `user_sessions` has one row per logged-in browser. It stores
+`token_hash`, a hash of the session token, never the token itself, so a leaked backup cannot
+be used to log in. A session lasts a fixed time from login (`expires_at`), and `created_at`
+is the login time. Deleting a user deletes their sessions.
+
 ## Decisions and rejected alternatives
 
 - Prerequisites are not stored. Within a unit, sequence says it; between units, unit order
@@ -78,6 +89,21 @@ scheduled and upcoming. Print-and-copy prep is generated from materials via `add
   Glue-In Lesson field (6 skills) is dropped.
 - Completion of prep tasks and anything else tied to a school year is scheduling state, not
   curriculum, and is not in this schema.
+- Role is one column on `users`, not a `roles` table with a `user_roles` link. Only one role
+  can exist in this database, the role names live in code either way, and the link would cost
+  two joins on every request. An `admin` role, if a colleague ever gets an account, is one
+  more value in the check, with the code treating admin as including teacher. A Postgres enum
+  was also rejected: the rest of the schema uses text with a check, and an enum is harder to
+  change.
+- Usernames are stored in lowercase only, enforced by the format check, so each username has
+  one spelling and a plain unique constraint is enough. The login code lowercases what was
+  typed. Rejected: a unique index on `lower(username)` (as lesson codes have), because a
+  username has no spelling worth preserving and every lookup would have to remember
+  `lower()`; and `citext`, which needs an extension.
+- The session token is stored only as a hash. Which hash function is decided with the guard.
+- No `last_used_at` on sessions. It would allow expiry after inactivity and show which
+  sessions are still active, at the cost of a write on read requests. A fixed lifetime is
+  enough for one teacher; add the column if that changes.
 
 ## Import notes (for later; do not migrate data yet)
 

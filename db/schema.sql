@@ -417,6 +417,61 @@ ALTER TABLE public.units ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
+-- Name: user_sessions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.user_sessions (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    token_hash text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    expires_at timestamp with time zone NOT NULL
+);
+
+
+--
+-- Name: user_sessions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.user_sessions ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.user_sessions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: users; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.users (
+    id integer NOT NULL,
+    username text NOT NULL,
+    password_hash text NOT NULL,
+    role text NOT NULL,
+    CONSTRAINT users_role_check CHECK ((role = 'teacher'::text)),
+    CONSTRAINT users_username_format CHECK ((username ~ '^[a-z][a-z0-9._-]{2,29}$'::text))
+);
+
+
+--
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.users ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.users_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: assignments assignments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -598,6 +653,38 @@ ALTER TABLE ONLY public.units
 
 ALTER TABLE ONLY public.units
     ADD CONSTRAINT units_position_unique UNIQUE NULLS NOT DISTINCT (subject_id, parent_id, unit_sequence) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- Name: user_sessions user_sessions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_sessions
+    ADD CONSTRAINT user_sessions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: user_sessions user_sessions_token_hash_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_sessions
+    ADD CONSTRAINT user_sessions_token_hash_unique UNIQUE (token_hash);
+
+
+--
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users users_username_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_username_unique UNIQUE (username);
 
 
 --
@@ -822,6 +909,14 @@ ALTER TABLE ONLY public.units
 
 ALTER TABLE ONLY public.units
     ADD CONSTRAINT units_subject_id_fkey FOREIGN KEY (subject_id) REFERENCES public.subjects(id);
+
+
+--
+-- Name: user_sessions user_sessions_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_sessions
+    ADD CONSTRAINT user_sessions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --
